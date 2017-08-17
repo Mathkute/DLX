@@ -2,7 +2,7 @@
 Implementation in Java of the DLX algorithm as described by Donald Knuth. 
 Included copy of the article that describes it, and two test files.
 
-- usage: cat <test file> | java DLX
+- usage: cat test-file.txt | java DLX
 - Shapes: represented choosing a number of contiguous squares of a nx.ny board.
 
 - test file: first line: <nshapes> <nrows> <nx> <ny>
