@@ -11,3 +11,5 @@ Included copy of the article that describes it, and two test files.
                  each line nshapes+nx*ny 0/1 entries:
                      one of first nshapes entries is 1 for the shape the others 0,
                      then a number of ones to represent the position of the squares on the board
+
+TODO: add test files; add generation code for the pentominoes; to do a graphical interface, or generate images.
