@@ -56,7 +56,13 @@ public class DLX {
         this.nx = nx; this.ny = ny;
         addHeaders(names);
         for(int[] r: rows) addRow(r);
-    }// DLX() //
+    }// DLX() (1) //
+
+    DLX(int nshapes, int nx, int ny, String[] names){
+        this.nshapes = nshapes;
+        this.nx = nx; this.ny = ny;
+        addHeaders(names);
+    } // DLX() (2) //
 
     void addHeaders(String[] headerLabels){
         this.h = new Header();
@@ -78,7 +84,11 @@ public class DLX {
         }
     } // addHeaders(String[]) //
 
-    void addRow(int[] row) {
+    public void addRows(int[][] rows){
+        for(int[] a: rows) addRow(a);
+    } // addRows() //
+
+    private void addRow(int[] row) {
         Data first = new Data();
         Data last = first;
         for(int x=0; x<row.length; x++) {
@@ -255,9 +265,11 @@ class TestDLX {
             // System.err.println(ai.length);
         }
         int[][] rows = rowsList.toArray(new int[0][0]);
-        DLX d = new DLX(nshapes, nx, ny, names, rows);
+        DLX d = new DLX(nshapes, nx, ny, names);
+        // DLX d = new DLX(nshapes, nx, ny, names, rows);
+        d.addRows(rows);
         d.search(0);
-        // d.pSolutions();
+           d.pSolutions();
     }
 } // class TestDLX //
 
