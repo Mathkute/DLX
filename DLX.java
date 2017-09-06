@@ -51,12 +51,11 @@ public class DLX {
     Data[] O;
     List<String[]> solutions = new ArrayList<>();
  
-    DLX(int nshapes, int nx, int ny, String[] names, List<int[]> rows) {
+    DLX(int nshapes, int nx, int ny, String[] names, int[][] rows) {
         this.nshapes = nshapes;
         this.nx = nx; this.ny = ny;
         addHeaders(names);
-        Iterator<int[]> ir = rows.iterator();
-        while(ir.hasNext()) {addRow(ir.next());}
+        for(int[] r: rows) addRow(r);
     }// DLX() //
 
     void addHeaders(String[] headerLabels){
@@ -65,14 +64,12 @@ public class DLX {
         this.headers[0] = this.h;
         this.O = new Data[headerLabels.length];
         for(int i=1; i<this.headers.length; i++) {
-            // System.err.print(headerLabels[i-1]+ " ");
             this.headers[i] = new Header(0,headerLabels[i-1]);
             this.headers[i].C = this.headers[i];
             this.headers[i-1].R = this.headers[i];
             this.headers[i].id = "H "+i;
         }
         this.headers[this.headers.length-1].R = this.headers[0];
-        // System.err.println();
 
         for(int i=0; i<this.headers.length; i++) {
             this.headers[i].L = this.headers[((i-1+this.headers.length)%this.headers.length)];
@@ -150,7 +147,6 @@ public class DLX {
     } // uncover() //
 
     boolean storeSolution(){
-        // System.err.print("storeSolution(): ");
         List<String> ls = new ArrayList<>();
         for(int i=0; i<this.nshapes;i++){
             Data o = this.O[i];
@@ -160,7 +156,6 @@ public class DLX {
                 n += c.C.N + (c.R!=o?" ":"");
             } while((c = c.R) != o);
             ls.add(n);
-            // System.err.print(n+" ");
         }
         solutions.add(ls.toArray(new String[0]));
         return false;
@@ -209,7 +204,6 @@ public class DLX {
             char[] out = new char[nx*ny];
             String[] ta = isol.next();
             for(String t: ta){
-                // System.err.print("pSolutions(): "+t);
                 Scanner ts = new Scanner(t);
                 String smb = ts.next();
                 char symbol = smb.charAt(0);
@@ -242,7 +236,7 @@ class TestDLX {
         // String ln = "";
         // for(String s: names) ln += s;
         // System.err.println(ln);
-        List<int[]> rows = new ArrayList<>();
+        List<int[]> rowsList = new ArrayList<>();
 
         while(in.hasNextLine()){
             // String ns = "";
@@ -257,10 +251,10 @@ class TestDLX {
             int[] ai = new int[li.size()];
             Iterator<Integer> ili = li.iterator();
             while(ili.hasNext()) {ai[x] = ili.next(); x++;}
-            rows.add(ai);
+            rowsList.add(ai);
             // System.err.println(ai.length);
         }
-
+        int[][] rows = rowsList.toArray(new int[0][0]);
         DLX d = new DLX(nshapes, nx, ny, names, rows);
         d.search(0);
         // d.pSolutions();
