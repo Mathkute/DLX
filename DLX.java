@@ -13,9 +13,9 @@ import java.util.HashSet;
    DLX(String[] headersLabels): to store the headers' labels;
    addRow(int[] row): to add a row
 
-   to change how it stops: to use a
-   method that checks the solution
-   and returns a boolean.
+   to change how it stops: to set a java.util.function.Predicate<T>:
+   one needs to create an instance that has access to the reducedMap
+   and copies it to do the checks
  */
 /* test0: 2x2 box; shapes: 'L','.'
    **  *.  **  .* S0 = '.', S1 = 'L'
@@ -32,107 +32,32 @@ import java.util.HashSet;
 */
 
 public class DLX {
-    public static void main(String[] args){
-        DLX d = new DLX();
-        d.search(0);
-        d.pSolutions();
-    }
-
     class Data {
         String id;
         Data U, D, L, R; Header C;
         Data(){this.U = this; this.D = this; this.L = this; this.R = this;}
-    }
+    } // class Data //
 
     class Header extends Data {
         int S;
         String N;
         Header(){this.S = -1; this.N = "h";}
         Header(int S, String N){ this.S = S; this.N = N;}
-    } /* class Header */
+    } // class Header //
 
-    DLX() {
-        this.nshapes = in.nextInt();
-        this.nrows   = in.nextInt();
-        this.nx = in.nextInt();
-        this.ny = in.nextInt();
-        if(in.hasNextLine()) in.nextLine();
-
-        String[] names = in.nextLine().split("\\s");
+    int nshapes, nx, ny;
+    Header h;
+    Header[] headers;
+    Data[] O;
+    List<String[]> solutions = new ArrayList<>();
+ 
+    DLX(int nshapes, int nx, int ny, String[] names, List<int[]> rows) {
+        this.nshapes = nshapes;
+        this.nx = nx; this.ny = ny;
         addHeaders(names);
-
-        int rowl = this.nshapes+this.nx*this.ny;
-        for(int y=0; y<this.nrows; y++) {
-            List<Integer> li = new ArrayList<>();
-            for(int x=0; x< rowl; x++){
-                if(in.nextInt() == 1) li.add(x);
-            }
-            int x = 0;
-            int[] ai = new int[li.size()];
-            Iterator<Integer> ili = li.iterator();
-            while(ili.hasNext()) {ai[x] = ili.next(); x++;}
-            // System.err.println(ai.length);
-            addRow(ai);
-            if(in.hasNextLine()) in.nextLine();
-        }
-        // pMatrix();
+        Iterator<int[]> ir = rows.iterator();
+        while(ir.hasNext()) {addRow(ir.next());}
     }// DLX() //
-
-    Scanner in = new Scanner(System.in);
-    int nrows, nshapes, nx, ny;
-    /*
-    DLX(){
-        this.nshapes = in.nextInt();
-        this.nrows   = in.nextInt();
-        this.nx = in.nextInt();
-        this.ny = in.nextInt();
-        if(in.hasNextLine()) in.nextLine();
-
-        String[] names = in.nextLine().split("\\s");
-        if(names.length != (this.nshapes+this.nx*this.ny))
-            System.err.println("Error: number of names does not match.");
-        this.O = new Data[names.length];
-        this.headers = new Header[names.length+1];
-        this.h = new Header();
-        this.headers[0] = this.h;
-        for(int i=1; i<this.headers.length; i++) {
-            this.headers[i] = new Header(0,names[i-1]);
-            this.headers[i].C = this.headers[i];
-            this.headers[i-1].R = this.headers[i];
-            this.headers[i].id = "H "+i;
-        }
-        this.headers[this.headers.length-1].R = this.headers[0];
-
-        for(int i=0; i<this.headers.length; i++) {
-            this.headers[i].L = this.headers[((i-1+this.headers.length)%this.headers.length)];
-            this.headers[i].U = this.headers[i];
-            this.headers[i].D = this.headers[i];
-        }
-        
-        for(int j=0; j<this.nrows; j++) {
-            Data first = new Data();
-            Data last = first;
-            for(int i=0; i<this.headers.length-1; i++) {
-                if(in.nextInt()==1) {
-                    Data one = new Data();
-                    one.id = "" + j + " " + i;
-                    this.headers[i+1].S++;
-                    one.C = this.headers[i+1];
-                    one.D = this.headers[i+1];
-                    this.headers[i+1].U.D = one;
-                    one.U = this.headers[i+1].U;
-                    this.headers[i+1].U = one;
-                    last.R = one; one.L = last;
-                    first.L = one; one.R = first;
-                    last = one;
-                }
-            }
-            last.R = first.R;
-            first.R.L = last;
-            if(in.hasNextLine()) in.nextLine();
-        }
-    } // constructor DLX() //
-    */
 
     void addHeaders(String[] headerLabels){
         this.h = new Header();
@@ -140,19 +65,21 @@ public class DLX {
         this.headers[0] = this.h;
         this.O = new Data[headerLabels.length];
         for(int i=1; i<this.headers.length; i++) {
+            // System.err.print(headerLabels[i-1]+ " ");
             this.headers[i] = new Header(0,headerLabels[i-1]);
             this.headers[i].C = this.headers[i];
             this.headers[i-1].R = this.headers[i];
             this.headers[i].id = "H "+i;
         }
         this.headers[this.headers.length-1].R = this.headers[0];
+        // System.err.println();
 
         for(int i=0; i<this.headers.length; i++) {
             this.headers[i].L = this.headers[((i-1+this.headers.length)%this.headers.length)];
             this.headers[i].U = this.headers[i];
             this.headers[i].D = this.headers[i];
         }
-    } /* DLX(String[]) */
+    } // addHeaders(String[]) //
 
     void addRow(int[] row) {
         Data first = new Data();
@@ -174,15 +101,10 @@ public class DLX {
         first.R.L = last;
     } /* addRow() */
 
-    Set<String[]> solutions = new HashSet<>();
-    Header h;
-    Header[] headers;
-    Data[] O;
+    boolean stop = false;
     void search(int k){
-        //TODO: to change storeSolution(): to return a boolean:
-        //      stop = storeSolution();
-        //      if(stop) return; 
-        if(h.R == h) { storeSolution(); return;}
+        if(stop) return; 
+        if(h.R == h) { stop=storeSolution(); return;}
         Data c = h.R;
 
         cover(c);
@@ -197,7 +119,7 @@ public class DLX {
             while((j=j.L)!= r){ uncover(j.C);}
         }
         uncover(c);
-    }
+    } // search(int) //
 
     void cover(Data c){
         c.L.R = c.R; 
@@ -211,7 +133,7 @@ public class DLX {
                 k.C.S = k.C.S - 1; 
             }
         }
-    } /* cover() */
+    } // cover() //
 
     void uncover(Data c){
         Data i = c;
@@ -225,7 +147,26 @@ public class DLX {
         }
         c.R.L = c;
         c.L.R = c;
-    } /* uncover() */
+    } // uncover() //
+
+    boolean storeSolution(){
+        // System.err.print("storeSolution(): ");
+        List<String> ls = new ArrayList<>();
+        for(int i=0; i<this.nshapes;i++){
+            Data o = this.O[i];
+            Data c = o;
+            String n = "";
+            do{ 
+                n += c.C.N + (c.R!=o?" ":"");
+            } while((c = c.R) != o);
+            ls.add(n);
+            // System.err.print(n+" ");
+        }
+        solutions.add(ls.toArray(new String[0]));
+        return false;
+    } // storeSolution() //
+
+    List<String[]> getSolutions(){return solutions;} // getSolutions() //
 
     void pMatrix(){
         List<String> matrix = new ArrayList<>();
@@ -259,49 +200,72 @@ public class DLX {
             }
             System.out.println(new String(r));
         }
-    } /* pMatrix() */
-
-    void storeSolution(){
-        String n = "";
-        List<String> ls = new ArrayList<>();
-        for(int i=0; i<this.nshapes;i++){
-            Data o = this.O[i];
-            Data c = o;
-            n = "";
-            do{ 
-                n += c.C.N + (/*c.R!=null &&*/ c.R!=o?" ":"");
-            } while((c = c.R) /*!= null && c  */!= o);
-            ls.add(n);
-        }
-        solutions.add(ls.toArray(new String[0]));
-    } // storeSolution() //
+    } // pMatrix() //
 
     void pSolutions(){
         int count = 0;
         Iterator<String[]> isol = this.solutions.iterator();
         while(isol.hasNext()) {
-            char[] out = new char[this.nx*this.ny];
+            char[] out = new char[nx*ny];
             String[] ta = isol.next();
             for(String t: ta){
-                // System.err.println("pSolutions(): "+t);
+                // System.err.print("pSolutions(): "+t);
                 Scanner ts = new Scanner(t);
                 String smb = ts.next();
                 char symbol = smb.charAt(0);
                 while(ts.hasNext()) {
                     int i=ts.nextInt();
                     out[i] = symbol;
-                    //System.err.print(i);
                 }
             }
             count++;
             String o = new String(out);
             System.out.println(count);
-            for(int i=0; i<this.ny; i++)
-                System.out.println(o.substring(i*this.nx,(i+1)*this.nx));
+            for(int i=0; i<ny; i++)
+                System.out.println(o.substring(i*nx,(i+1)*nx));
         }
     } // pSolutions() //
 
 } // class DLX //
+
+class TestDLX {
+    public static void main(String[] args){
+        Scanner in = new Scanner(System.in);
+
+        int nshapes = in.nextInt();
+        int nrows   = in.nextInt();
+        int nx = in.nextInt();
+        int ny = in.nextInt();
+        if(in.hasNextLine()) in.nextLine();
+        
+        String[] names = in.nextLine().split("\\s");
+        // String ln = "";
+        // for(String s: names) ln += s;
+        // System.err.println(ln);
+        List<int[]> rows = new ArrayList<>();
+
+        while(in.hasNextLine()){
+            // String ns = "";
+            String[] line = in.nextLine().split("\\s");
+            List<Integer> li = new ArrayList<>();
+            for(int x=0; x<line.length; x++){
+                // ns += Integer.parseInt(line[x])+" ";
+                if(Integer.parseInt(line[x]) == 1) li.add(x);
+            }
+            // System.err.println(ns);
+            int x = 0;
+            int[] ai = new int[li.size()];
+            Iterator<Integer> ili = li.iterator();
+            while(ili.hasNext()) {ai[x] = ili.next(); x++;}
+            rows.add(ai);
+            // System.err.println(ai.length);
+        }
+
+        DLX d = new DLX(nshapes, nx, ny, names, rows);
+        d.search(0);
+        // d.pSolutions();
+    }
+} // class TestDLX //
 
 /*
  *
