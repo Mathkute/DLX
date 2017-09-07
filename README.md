@@ -2,7 +2,7 @@
 Implementation in Java of the DLX algorithm as described by Donald Knuth. 
 Included copy of the article that describes it, and two test files.
 
-- usage: cat test-file.txt | java DLX
+- usage: cat test-file.txt | java TestDLX
 - Shapes: represented choosing a number of contiguous squares of a nx.ny board.
 
 - test file: first line: <nshapes> <nrows> <nx> <ny>
@@ -12,4 +12,5 @@ Included copy of the article that describes it, and two test files.
                      one of first nshapes entries is 1 for the shape the others 0,
                      then a number of ones to represent the position of the squares on the board
 
+TODO: optimisation: to turn the search() from recursive call to inline; to use more simple data structures like in the article (just arrays).
 TODO: add test files; add generation code for the pentominoes; to do a graphical interface, or generate images.

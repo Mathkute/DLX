@@ -45,24 +45,22 @@ public class DLX {
         Header(int S, String N){ this.S = S; this.N = N;}
     } // class Header //
 
-    int nshapes, nx, ny;
+    int nshapes;
     Header h;
     Header[] headers;
     Data[] O;
     List<String[]> solutions = new ArrayList<>();
  
-    DLX(int nshapes, int nx, int ny, String[] names, int[][] rows) {
+    DLX(int nshapes, String[] names){
         this.nshapes = nshapes;
-        this.nx = nx; this.ny = ny;
+        addHeaders(names);
+    } // DLX() (1) //
+
+    DLX(int nshapes, String[] names, int[][] rows) {
+        this.nshapes = nshapes;
         addHeaders(names);
         for(int[] r: rows) addRow(r);
-    }// DLX() (1) //
-
-    DLX(int nshapes, int nx, int ny, String[] names){
-        this.nshapes = nshapes;
-        this.nx = nx; this.ny = ny;
-        addHeaders(names);
-    } // DLX() (2) //
+    }// DLX() (2) //
 
     void addHeaders(String[] headerLabels){
         this.h = new Header();
@@ -192,7 +190,7 @@ public class DLX {
         
         Iterator<String> im = matrix.iterator();
         while(im.hasNext()){
-            char[] r = new char[this.nshapes+this.nx*this.ny];
+            char[] r = new char[this.O.length];// this.nshapes+this.nx*this.ny];
             for(int j=0; j<r.length; j++) r[j] = '0';
             String[] rs = im.next().split("\\s");
             int j=1, k=0;
@@ -206,10 +204,12 @@ public class DLX {
             System.out.println(new String(r));
         }
     } // pMatrix() //
+} // class DLX //
 
-    void pSolutions(){
+class TestDLX {
+    static void pSolutions(int nx, int ny, List<String[]> solutions){
         int count = 0;
-        Iterator<String[]> isol = this.solutions.iterator();
+        Iterator<String[]> isol = solutions.iterator();
         while(isol.hasNext()) {
             char[] out = new char[nx*ny];
             String[] ta = isol.next();
@@ -230,9 +230,6 @@ public class DLX {
         }
     } // pSolutions() //
 
-} // class DLX //
-
-class TestDLX {
     public static void main(String[] args){
         Scanner in = new Scanner(System.in);
 
@@ -265,11 +262,12 @@ class TestDLX {
             // System.err.println(ai.length);
         }
         int[][] rows = rowsList.toArray(new int[0][0]);
-        DLX d = new DLX(nshapes, nx, ny, names);
+        DLX d = new DLX(nshapes,names);
         // DLX d = new DLX(nshapes, nx, ny, names, rows);
         d.addRows(rows);
         d.search(0);
-           d.pSolutions();
+        pSolutions(nx, ny, d.getSolutions());
+        // d.pMatrix();
     }
 } // class TestDLX //
 
